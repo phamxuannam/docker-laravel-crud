@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Web\ArticleController;
 use App\Http\Controllers\Web\PermissionController;
 use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\ProductController;
+use App\Http\Controllers\Web\RoleController;
 use App\Http\Controllers\Web\UserController;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Permission;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,7 +37,12 @@ Route::middleware('auth')->group(function () {
     // Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     // Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
+    Route::get('fetch',[Permission::class,'fetch'])->name('permissions.fetch');
     Route::resource('permissions', PermissionController::class);
+
+    Route::resource('roles',RoleController::class);
+
+    Route::resource('articles', ArticleController::class);
     
 });
 

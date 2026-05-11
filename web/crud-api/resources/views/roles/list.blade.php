@@ -3,10 +3,9 @@
     <x-slot name="header">
         <div class="flex justify-between">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Permissions') }}
+                {{ __('Roles') }}
             </h2>
-            <a href="{{ route('permissions.create') }}"
-                class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
+            <a href="{{ route('roles.create') }}" class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
         </div>
     </x-slot>
 
@@ -21,26 +20,32 @@
                     <tr class="border-b">
                         <th class="px-6 py-3 text-left" width="60">#</th>
                         <th class="px-6 py-3 text-left">Name</th>
+                        <th class="px-6 py-3 text-left">Permission</th>
                         <th class="px-6 py-3 text-left" width="180">Created</th>
                         <th class="px-6 py-3 text-center" width="180">Action</th>
                     </tr>
                 </thead>
 
                 <tbody class="bg-white">
-                    @if ($permissions->isNotEmpty())
-                        @foreach ($permissions as $permission)
+                    @if ($roles->isNotEmpty())
+                        @foreach ($roles as $role)
                             <tr id="row-" class="border-b">
-                                <td class="px-6 py-3 text-left"> {{ $permission->id }} </td>
-                                <td class="px-6 py-3 text-left"> {{ $permission->name }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $role->id }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $role->name }} </td>
+
+                                {{-- pluck: lấy name của permission, implode: phân tách bằng dấu ',' --}}
+                                <td class="px-6 py-3 text-left">{{ $role->permissions->pluck('name')->implode(', ') }}
+                                </td>
+
                                 <td class="px-6 py-3 text-left">
                                     {{-- \Carbon\Carbon::parse => format datetime --}}
-                                    {{ \Carbon\Carbon::parse($permission->created_at)->format('d M, Y') }}</td>
+                                    {{ \Carbon\Carbon::parse($role->created_at)->format('d M, Y') }}</td>
                                 <td class="px-6 py-3 text-center">
-                                    <a href="{{ route('permissions.edit', $permission->id) }}"
+                                    <a href="{{ route('roles.edit', $role->id) }}"
                                         class="bg-slate-700 text-sm rounded-md text-white px-3 py-2 hover:bg-slate-600 ">Edit</a>
 
                                     {{-- onclick="deletePermission({{ $permission->id }})"     --}}
-                                    <a href="javascript:void(0);" data-id="{{ $permission->id }}"
+                                    <a href="javascript:void(0);" data-id="{{ $role->id }}"
                                         class="bg-red-700 text-sm rounded-md text-white px-3 py-2 hover:bg-red-600 deleteBtn">Delete</a>
                                 </td>
                             </tr>
@@ -48,9 +53,11 @@
                     @endif
                 </tbody>
             </table>
+
             <div id="pagination" class="my-3">
-                {{ $permissions->links() }}
+                {{ $roles->links() }}
             </div>
+
         </div>
     </div>
 
@@ -84,7 +91,7 @@
                 let id = $(this).data('id');
                 console.log(id);
                 $.ajax({
-                    url: "{{ route('permissions.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('roles.destroy', ':id') }}".replace(':id', id),
                     method: 'DELETE',
                     headers: {
                         'x-csrf-token': '{{ csrf_token() }}'
@@ -95,11 +102,11 @@
                         $('#row' + id)
                             .remove();
                         //fetchPermissions();
-                        window.location.href = "{{ route('permissions.index') }}";
+                        window.location.href = "{{ route('roles.index') }}";
                         alert(res.message);
                     },
                     error: function() {
-                        alert("Lỗi, Không thể xóa sản phẩm.");
+                        alert("Lỗi, Không thể xóa role.");
                     }
                 });
             });

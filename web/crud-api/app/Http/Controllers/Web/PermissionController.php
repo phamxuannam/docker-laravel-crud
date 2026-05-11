@@ -12,9 +12,18 @@ class PermissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return view('permissions.list');
+    public function index(){
+        $permissions = Permission::orderBy('created_at','DESC')->paginate(25);
+        return view('permissions.list',[
+            'permissions' => $permissions
+        ]);
+    }
+
+    public function fetch(){
+        $permissions = Permission::orderBy('created_at','DESC')->paginate(25);
+        return view('permissions.list',[
+            'permissions' => $permissions
+        ]);
     }
 
     /**
@@ -53,9 +62,10 @@ class PermissionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
+    public function edit(string $id){
+        $permission = Permission::findOrFail($id);
+
+        return view('permissions.edit', compact('permission'));
     }
 
     /**
@@ -63,7 +73,20 @@ class PermissionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $permission = Permission::findOrFail($id);
+        $validator = Validator::make($request->all(),[
+            'name'  => 'required|min:3|unique:permissions,name,'.$id.',id'
+        ]);
+
+        if($validator->passes()){
+
+            $permission->name = $request->name;
+            $permission->save();
+
+            return redirect()->route('permissions.index')->with('success', 'Permission updated successfully.');
+        }else {
+            return redirect()->route('permissions.edit',$id)->withInput()->withErrors($validator);
+        }
     }
 
     /**
@@ -71,6 +94,19 @@ class PermissionController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $permission = Permission::find($id);
+        if($permission == null) {
+            session()->flash('error','Khong tim thay permission.');
+            return response()->json([
+                'status' => false
+            ]);
+        }
+        $permission->delete();
+
+        session()->flash('success','Xoa Permission thanh cong.');
+        return response()->json([
+            'status' => true,
+            'message' => 'Xoa thanh cong'
+        ]);
     }
 }

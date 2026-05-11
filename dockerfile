@@ -10,5 +10,22 @@ RUN dnf -y update && \
 RUN mkdir -p /run/httpd /run/php-fpm && \
     echo "ServerName localhost" >> /etc/httpd/conf/httpd.conf
 
+
+
+# Bật mod_rewrite (bỏ comment dòng LoadModule)
+RUN sed -i 's/^#LoadModule rewrite_module/LoadModule rewrite_module/' /etc/httpd/conf/httpd.conf
+
+# Cho phép .htaccess ghi đè cấu hình (AllowOverride All)
+RUN sed -i '/<Directory "\/var\/www\/html">/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
+
+# Tuỳ chọn: Nếu bạn dùng Laravel (DocumentRoot phải là public)
+RUN sed -i 's|DocumentRoot "/var/www/html"|DocumentRoot "/var/www/html/public"|' /etc/httpd/conf/httpd.conf
+
+# Thêm ServerName để tránh warning
+RUN echo "ServerName localhost" >> /etc/httpd/conf/httpd.conf
+
+
+
+
 # Start cả php-fpm + httpd
 CMD ["/bin/bash", "-c", "php-fpm -D && httpd -D FOREGROUND"]
