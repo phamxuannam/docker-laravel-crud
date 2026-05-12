@@ -3,11 +3,11 @@
     <x-slot name="header">
         <div class="flex justify-between">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Permissions') }}
+                {{ __('Users') }}
             </h2>
-            @can('create permissions')
-                <a href="{{ route('permissions.create') }}"
-                    class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
+
+            @can('create users')
+                <a href="{{ route('users.create') }}" class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
             @endcan
 
         </div>
@@ -24,30 +24,36 @@
                     <tr class="border-b">
                         <th class="px-6 py-3 text-left" width="60">#</th>
                         <th class="px-6 py-3 text-left">Name</th>
+                        <th class="px-6 py-3 text-left">Roles</th>
+                        <th class="px-6 py-3 text-left">Email</th>
+                        <th class="px-6 py-3 text-left">Age</th>
                         <th class="px-6 py-3 text-left" width="180">Created</th>
                         <th class="px-6 py-3 text-center" width="180">Action</th>
                     </tr>
                 </thead>
 
                 <tbody class="bg-white">
-                    @if ($permissions->isNotEmpty())
-                        @foreach ($permissions as $permission)
+                    @if ($users->isNotEmpty())
+                        @foreach ($users as $user)
                             <tr id="row-" class="border-b">
-                                <td class="px-6 py-3 text-left"> {{ $permission->id }} </td>
-                                <td class="px-6 py-3 text-left"> {{ $permission->name }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $user->id }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $user->name }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $user->roles->pluck('name')->implode(', ') }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $user->email }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $user->age }} </td>
                                 <td class="px-6 py-3 text-left">
                                     {{-- \Carbon\Carbon::parse => format datetime --}}
-                                    {{ \Carbon\Carbon::parse($permission->created_at)->format('d M, Y') }}</td>
+                                    {{ \Carbon\Carbon::parse($user->created_at)->format('d M, Y') }}</td>
                                 <td class="px-6 py-3 text-center">
 
-                                    @can('edit permissions')
-                                        <a href="{{ route('permissions.edit', $permission->id) }}"
+                                    @can('edit users')
+                                        <a href="{{ route('users.edit', $user->id) }}"
                                             class="bg-slate-700 text-sm rounded-md text-white px-3 py-2 hover:bg-slate-600 ">Edit</a>
                                     @endcan
 
-                                    @can('delete permissions')
+                                    @can('delete users')
                                         {{-- onclick="deletePermission({{ $permission->id }})"     --}}
-                                        <a href="javascript:void(0);" data-id="{{ $permission->id }}"
+                                        <a href="javascript:void(0);" data-id="{{ $user->id }}"
                                             class="bg-red-700 text-sm rounded-md text-white px-3 py-2 hover:bg-red-600 deleteBtn">Delete</a>
                                     @endcan
 
@@ -58,42 +64,20 @@
                 </tbody>
             </table>
             <div id="pagination" class="my-3">
-                {{ $permissions->links() }}
+                {{ $users->links() }}
             </div>
         </div>
     </div>
 
     <x-slot name="script">
-        {{-- <script type="text/javascript">
-            function deletePermission(id) {
-                if (confirm('Ban chac chan muon xoa khong?')) {
-                    let id = $(this).data('id');
-                    $.ajax({
-                        url: "{{ route('permissions.destroy', ':id') }}".replace(':id', id),
-                        type: 'delete',
-                        data: {
-                            id: id
-                        },
-                        dataType: 'json',
-                        headers: {
-                            'x-csrf-token': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            // window.location.href = "{{ route('permissions.destroy') }}";
-                            alert('xoa thanh cong.');
-                        }
-                    })
-                }
-            }
-        </script> --}}
 
         <script>
-            $(document).on('click', '.deleteBtn', function() {
-                if (!confirm('Bạn có chắc muốn xóa không?')) return;
+            $(document).on('click', '.deleteBtn', function(e) {
+                e.preventDefault();
+                if (!confirm('Ban co chac muon xoa khong?')) return;
                 let id = $(this).data('id');
-                console.log(id);
                 $.ajax({
-                    url: "{{ route('permissions.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('articles.destroy', ':id') }}".replace(':id', id),
                     method: 'DELETE',
                     headers: {
                         'x-csrf-token': '{{ csrf_token() }}'
@@ -101,27 +85,11 @@
                     contentType: false,
                     processData: false,
                     success: function(res) {
-                        $('#row' + id)
-                            .remove();
-                        //fetchPermissions();
-                        window.location.href = "{{ route('permissions.index') }}";
-                        alert(res.message);
-                    },
-                    error: function() {
-                        alert("Lỗi, Không thể xóa sản phẩm.");
+                        $('#row-' + id).remove();
+                        window.location.href = "{{ route('articles.index') }}";
                     }
                 });
             });
-
-            // function fetchPermissions() {
-            //     $.ajax({
-            //         url: "{{ route('permissions.fetch') }}",
-            //         method: 'GET',
-            //         success: function() {
-
-            //         }
-            //     });
-            // }
         </script>
     </x-slot>
 

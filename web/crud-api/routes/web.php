@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Web\AccountController;
 use App\Http\Controllers\Web\ArticleController;
 use App\Http\Controllers\Web\PermissionController;
 use App\Http\Controllers\Web\ProfileController;
@@ -30,7 +31,7 @@ Route::middleware('auth')->group(function () {
     //create: /products/create
 
     Route::resource('users', UserController::class); //->except('store', 'create')
-    Route::get('fetch', [UserController::class, 'fetch'])->name('users.fetch');
+    Route::get('users/fetch', [UserController::class, 'fetch'])->name('users.fetch');
     // Route::get('/users', [UserController::class, 'index'])->name('users.index');
     // Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     // Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
@@ -43,7 +44,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('roles',RoleController::class);
 
     Route::resource('articles', ArticleController::class);
-    
 });
 
 require __DIR__ . '/auth.php';

@@ -5,8 +5,12 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Articles') }}
             </h2>
-            <a href="{{ route('alticles.create') }}"
-                class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
+
+            @can('create articles')
+                <a href="{{ route('articles.create') }}"
+                    class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
+            @endcan
+
         </div>
     </x-slot>
 
@@ -21,6 +25,8 @@
                     <tr class="border-b">
                         <th class="px-6 py-3 text-left" width="60">#</th>
                         <th class="px-6 py-3 text-left">Name</th>
+                        <th class="px-6 py-3 text-left">Content</th>
+                        <th class="px-6 py-3 text-left">Author</th>
                         <th class="px-6 py-3 text-left" width="180">Created</th>
                         <th class="px-6 py-3 text-center" width="180">Action</th>
                     </tr>
@@ -32,16 +38,24 @@
                             <tr id="row-" class="border-b">
                                 <td class="px-6 py-3 text-left"> {{ $article->id }} </td>
                                 <td class="px-6 py-3 text-left"> {{ $article->title }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $article->text }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $article->author }} </td>
                                 <td class="px-6 py-3 text-left">
                                     {{-- \Carbon\Carbon::parse => format datetime --}}
                                     {{ \Carbon\Carbon::parse($article->created_at)->format('d M, Y') }}</td>
                                 <td class="px-6 py-3 text-center">
-                                    <a href="{{ route('permissions.edit', $article->id) }}"
-                                        class="bg-slate-700 text-sm rounded-md text-white px-3 py-2 hover:bg-slate-600 ">Edit</a>
 
-                                    {{-- onclick="deletePermission({{ $permission->id }})"     --}}
-                                    <a href="javascript:void(0);" data-id="{{ $article->id }}"
-                                        class="bg-red-700 text-sm rounded-md text-white px-3 py-2 hover:bg-red-600 deleteBtn">Delete</a>
+                                    @can('edit articles')
+                                        <a href="{{ route('articles.edit', $article->id) }}"
+                                            class="bg-slate-700 text-sm rounded-md text-white px-3 py-2 hover:bg-slate-600 ">Edit</a>
+                                    @endcan
+
+                                    @can('delete articles')
+                                        {{-- onclick="deletePermission({{ $permission->id }})"     --}}
+                                        <a href="javascript:void(0);" data-id="{{ $article->id }}"
+                                            class="bg-red-700 text-sm rounded-md text-white px-3 py-2 hover:bg-red-600 deleteBtn">Delete</a>
+                                    @endcan
+
                                 </td>
                             </tr>
                         @endforeach
@@ -79,12 +93,12 @@
         </script> --}}
 
         <script>
-            $(document).on('click', '.deleteBtn', function() {
-                if (!confirm('Bạn có chắc muốn xóa không?')) return;
+            $(document).on('click', '.deleteBtn', function(e) {
+                e.preventDefault();
+                if (!confirm('Ban co chac muon xoa khong?')) return;
                 let id = $(this).data('id');
-                console.log(id);
                 $.ajax({
-                    url: "{{ route('permissions.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('articles.destroy', ':id') }}".replace(':id', id),
                     method: 'DELETE',
                     headers: {
                         'x-csrf-token': '{{ csrf_token() }}'
@@ -92,18 +106,11 @@
                     contentType: false,
                     processData: false,
                     success: function(res) {
-                        $('#row' + id)
-                            .remove();
-                        //fetchPermissions();
-                        window.location.href = "{{ route('permissions.index') }}";
-                        alert(res.message);
-                    },
-                    error: function() {
-                        alert("Lỗi, Không thể xóa sản phẩm.");
+                        $('#row-' + id).remove();
+                        window.location.href = "{{ route('articles.index') }}";
                     }
                 });
             });
-
             // function fetchPermissions() {
             //     $.ajax({
             //         url: "{{ route('permissions.fetch') }}",

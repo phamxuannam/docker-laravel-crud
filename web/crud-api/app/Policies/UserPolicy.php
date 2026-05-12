@@ -10,7 +10,8 @@ class UserPolicy
     //check account is role_admin?
     public function before(User $user, string $ability): bool|null
     {
-        return ($user->isAdmin && $ability !== 'delete' && $ability !== 'forceDelete') ? true : null;
+        // return ($user->isAdmin && $ability !== 'delete' && $ability !== 'forceDelete') ? true : null;
+        return true;
     }
     /**
      * Determine whether the user can view any models.
@@ -44,7 +45,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id;
+        // return $user->id === $model->id;
+        return true;
     }
 
     /**
@@ -54,7 +56,7 @@ class UserPolicy
     {
         return $user->isAdmin && $user->id !== $model->id; //admin có thể xoá acc # but ko thể xoá bản thân
     }
-
+    
     /**
      * Determine whether the user can restore the model.
      */
