@@ -55,7 +55,7 @@
 
                             <label for="" class="text-lg font-medium">Confirm Password</label>
                             <div class="my-3">
-                                <input value="{{ old('confirm_password') }}" name="password"
+                                <input value="{{ old('confirm_password') }}" name="confirm_password"
                                     placeholder="Confirm Your Password" type="password"
                                     class="border-gray-300 shadow-sm w-1/2 rounded-lg">
                                 @error('confirm_password')

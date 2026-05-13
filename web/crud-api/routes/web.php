@@ -38,7 +38,7 @@ Route::middleware('auth')->group(function () {
     // Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     // Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-    Route::get('fetch',[Permission::class,'fetch'])->name('permissions.fetch');
+    Route::get('permissions/fetch',[PermissionController::class,'fetch'])->name('permissions.fetch');
     Route::resource('permissions', PermissionController::class);
 
     Route::resource('roles',RoleController::class);

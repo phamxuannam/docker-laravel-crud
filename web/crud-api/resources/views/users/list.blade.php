@@ -35,7 +35,7 @@
                 <tbody class="bg-white">
                     @if ($users->isNotEmpty())
                         @foreach ($users as $user)
-                            <tr id="row-" class="border-b">
+                            <tr id="row{{ $user->id }}" class="border-b">
                                 <td class="px-6 py-3 text-left"> {{ $user->id }} </td>
                                 <td class="px-6 py-3 text-left"> {{ $user->name }} </td>
                                 <td class="px-6 py-3 text-left"> {{ $user->roles->pluck('name')->implode(', ') }} </td>
@@ -76,17 +76,16 @@
                 e.preventDefault();
                 if (!confirm('Ban co chac muon xoa khong?')) return;
                 let id = $(this).data('id');
+                console.log(id);
                 $.ajax({
-                    url: "{{ route('articles.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('users.destroy', ':id') }}".replace(':id', id),
                     method: 'DELETE',
                     headers: {
                         'x-csrf-token': '{{ csrf_token() }}'
                     },
-                    contentType: false,
-                    processData: false,
                     success: function(res) {
-                        $('#row-' + id).remove();
-                        window.location.href = "{{ route('articles.index') }}";
+                        $('#row' + id).remove();
+                        // window.location.href = "{{ route('users.index') }}";
                     }
                 });
             });

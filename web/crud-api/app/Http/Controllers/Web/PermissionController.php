@@ -33,10 +33,8 @@ class PermissionController extends Controller implements HasMiddleware
     }
 
     public function fetch(){
-        $permissions = Permission::orderBy('created_at','DESC')->paginate(25);
-        return view('permissions.list',[
-            'permissions' => $permissions
-        ]);
+        $permissions = Permission::latest()->paginate(25);
+        return view('permissions.permission-data', compact('permissions'))->render();
     }
 
     /**

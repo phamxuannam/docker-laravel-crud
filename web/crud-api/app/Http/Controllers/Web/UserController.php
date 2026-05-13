@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Psy\Readline\Hoa\Console;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller implements HasMiddleware
@@ -70,7 +71,7 @@ class UserController extends Controller implements HasMiddleware
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UserRequest $request) {
+    public function store(Request $request) {
 
 
         // $data = [
@@ -91,12 +92,12 @@ class UserController extends Controller implements HasMiddleware
             'email'=> 'required|email',[
                 Rule::unique('users')
             ],
-            'password' => 'required|min:5|',
-            'confirm_password' => 'required'
+            'password' => 'required|min:5',
+            'confirm_password' => 'required|same:password'
         ]);
 
         if($validator->fails()){
-            return redirect()->route('users.edit')->withInput()->withErrors($validator);
+            return redirect()->route('users.create')->withInput()->withErrors($validator);
         }
 
         $user = new User();
@@ -194,9 +195,9 @@ class UserController extends Controller implements HasMiddleware
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user, Request $request)
+    public function destroy(string $id)
     {
-        $user->delete();
+        // $user->delete();
         // return response()->json([
         //     'message' => 'successed.'
         // ]); 
@@ -206,8 +207,22 @@ class UserController extends Controller implements HasMiddleware
         //     ]);
         // }
         // return redirect()->route('users.index');
+        // return response()->json([
+        //     'message' => 'xóa thành công.'
+        // ]);
+
+        $user = User::find($id);
+
+        if($user == null){
+            session()->flash('error','Khong Tim Thay User.');
+            return response()->json([
+                'status' => false
+            ]);
+        }
+        $user->delete();
+        session()->flash('success','Xoa User Thanh Cong');
         return response()->json([
-            'message' => 'xóa thành công.'
+            'status' => true
         ]);
     }
 }

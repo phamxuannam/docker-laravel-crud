@@ -6,9 +6,14 @@
                 {{ __('Roles') }}
             </h2>
 
+            {{-- spatie --}}
             @can('create roles')
                 <a href="{{ route('roles.create') }}" class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
             @endcan
+
+            {{-- @can('update', $post)
+                policy
+            @endcan --}}
 
         </div>
     </x-slot>
@@ -33,7 +38,7 @@
                 <tbody class="bg-white">
                     @if ($roles->isNotEmpty())
                         @foreach ($roles as $role)
-                            <tr id="row-" class="border-b">
+                            <tr id="row{{ $role->id }}" class="border-b">
                                 <td class="px-6 py-3 text-left"> {{ $role->id }} </td>
                                 <td class="px-6 py-3 text-left"> {{ $role->name }} </td>
 
@@ -71,28 +76,6 @@
     </div>
 
     <x-slot name="script">
-        {{-- <script type="text/javascript">
-            function deletePermission(id) {
-                if (confirm('Ban chac chan muon xoa khong?')) {
-                    let id = $(this).data('id');
-                    $.ajax({
-                        url: "{{ route('permissions.destroy', ':id') }}".replace(':id', id),
-                        type: 'delete',
-                        data: {
-                            id: id
-                        },
-                        dataType: 'json',
-                        headers: {
-                            'x-csrf-token': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            // window.location.href = "{{ route('permissions.destroy') }}";
-                            alert('xoa thanh cong.');
-                        }
-                    })
-                }
-            }
-        </script> --}}
 
         <script>
             $(document).on('click', '.deleteBtn', function() {
@@ -105,31 +88,19 @@
                     headers: {
                         'x-csrf-token': '{{ csrf_token() }}'
                     },
-                    contentType: false,
-                    processData: false,
                     success: function(res) {
-                        $('#row' + id)
-                            .remove();
+                        $('#row' + id).remove(); <
+                        x - message > < /x-message>
                         //fetchPermissions();
-                        window.location.href = "{{ route('roles.index') }}";
-                        alert(res.message);
+                        //window.location.href = "{{ route('roles.index') }}";
                     },
                     error: function() {
                         alert("Lỗi, Không thể xóa role.");
                     }
                 });
             });
-
-            // function fetchPermissions() {
-            //     $.ajax({
-            //         url: "{{ route('permissions.fetch') }}",
-            //         method: 'GET',
-            //         success: function() {
-
-            //         }
-            //     });
-            // }
         </script>
+
     </x-slot>
 
 </x-app-layout>

@@ -20,6 +20,7 @@
             <x-message></x-message>
 
             <table class="w-full">
+
                 <thead class="bg-gray-50">
                     <tr class="border-b">
                         <th class="px-6 py-3 text-left" width="60">#</th>
@@ -29,33 +30,10 @@
                     </tr>
                 </thead>
 
-                <tbody class="bg-white">
-                    @if ($permissions->isNotEmpty())
-                        @foreach ($permissions as $permission)
-                            <tr id="row-" class="border-b">
-                                <td class="px-6 py-3 text-left"> {{ $permission->id }} </td>
-                                <td class="px-6 py-3 text-left"> {{ $permission->name }} </td>
-                                <td class="px-6 py-3 text-left">
-                                    {{-- \Carbon\Carbon::parse => format datetime --}}
-                                    {{ \Carbon\Carbon::parse($permission->created_at)->format('d M, Y') }}</td>
-                                <td class="px-6 py-3 text-center">
-
-                                    @can('edit permissions')
-                                        <a href="{{ route('permissions.edit', $permission->id) }}"
-                                            class="bg-slate-700 text-sm rounded-md text-white px-3 py-2 hover:bg-slate-600 ">Edit</a>
-                                    @endcan
-
-                                    @can('delete permissions')
-                                        {{-- onclick="deletePermission({{ $permission->id }})"     --}}
-                                        <a href="javascript:void(0);" data-id="{{ $permission->id }}"
-                                            class="bg-red-700 text-sm rounded-md text-white px-3 py-2 hover:bg-red-600 deleteBtn">Delete</a>
-                                    @endcan
-
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
+                <tbody id="table-body" class="bg-white">
+                    @include('permissions.permission-data')
                 </tbody>
+
             </table>
             <div id="pagination" class="my-3">
                 {{ $permissions->links() }}
@@ -88,7 +66,8 @@
         </script> --}}
 
         <script>
-            $(document).on('click', '.deleteBtn', function() {
+            $(document).on('click', '.deleteBtn', function(e) {
+                e.preventDefault();
                 if (!confirm('Bạn có chắc muốn xóa không?')) return;
                 let id = $(this).data('id');
                 console.log(id);
@@ -96,16 +75,13 @@
                     url: "{{ route('permissions.destroy', ':id') }}".replace(':id', id),
                     method: 'DELETE',
                     headers: {
-                        'x-csrf-token': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    contentType: false,
-                    processData: false,
                     success: function(res) {
-                        $('#row' + id)
-                            .remove();
+                        $('#row' + id).remove();
                         //fetchPermissions();
-                        window.location.href = "{{ route('permissions.index') }}";
-                        alert(res.message);
+                        //window.location.href = "{{ route('permissions.index') }}";
+                        //alert(res.message);
                     },
                     error: function() {
                         alert("Lỗi, Không thể xóa sản phẩm.");
@@ -113,15 +89,18 @@
                 });
             });
 
-            // function fetchPermissions() {
-            //     $.ajax({
-            //         url: "{{ route('permissions.fetch') }}",
-            //         method: 'GET',
-            //         success: function() {
-
-            //         }
-            //     });
-            // }
+            function fetchPermissions() {
+                $.ajax({
+                    url: "{{ route('permissions.fetch') }}",
+                    method: 'GET',
+                    headers: {
+                        "x-csrf-token": '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        $('#table-body').html(response);
+                    }
+                });
+            }
         </script>
     </x-slot>
 
