@@ -1,0 +1,125 @@
+<x-app-layout>
+
+    <x-slot name="header">
+        <div class="flex justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Roles') }}
+            </h2>
+
+            {{-- spatie --}}
+            @can('create roles')
+                <a href="{{ route('roles.create') }}" class="bg-slate-700 text-sm rounded-md text-white px-3 py-2">Create</a>
+            @endcan
+
+            {{-- @can('update', $post)
+                policy
+            @endcan --}}
+
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            {{-- gọi components/message --}}
+            <x-message></x-message>
+
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr class="border-b">
+                        <th class="px-6 py-3 text-left" width="60">#</th>
+                        <th class="px-6 py-3 text-left">Name</th>
+                        <th class="px-6 py-3 text-left">Permission</th>
+                        <th class="px-6 py-3 text-left" width="180">Created</th>
+                        <th class="px-6 py-3 text-center" width="180">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-white">
+                    @if ($roles->isNotEmpty())
+                        @foreach ($roles as $role)
+                            <tr id="row{{ $role->id }}" class="border-b">
+                                <td class="px-6 py-3 text-left"> {{ $role->id }} </td>
+                                <td class="px-6 py-3 text-left"> {{ $role->name }} </td>
+
+                                {{-- pluck: lấy name của permission, implode: phân tách bằng dấu ',' --}}
+                                <td class="px-6 py-3 text-left">{{ $role->permissions->pluck('name')->implode(', ') }}
+                                </td>
+
+                                <td class="px-6 py-3 text-left">
+                                    {{-- \Carbon\Carbon::parse => format datetime --}}
+                                    {{ \Carbon\Carbon::parse($role->created_at)->format('d M, Y') }}</td>
+                                <td class="px-6 py-3 text-center">
+                                    @can('edit roles')
+                                        <a href="{{ route('roles.edit', $role->id) }}"
+                                            class="bg-slate-700 text-sm rounded-md text-white px-3 py-2 hover:bg-slate-600 ">Edit</a>
+                                    @endcan
+
+                                    @can('delete roles')
+                                        {{-- onclick="deletePermission({{ $permission->id }})"     --}}
+                                        <a href="javascript:void(0);" data-id="{{ $role->id }}"
+                                            class="bg-red-700 text-sm rounded-md text-white px-3 py-2 hover:bg-red-600 deleteBtn">Delete</a>
+                                    @endcan
+
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+
+            <div id="pagination" class="my-3">
+                {{ $roles->links() }}
+            </div>
+
+        </div>
+    </div>
+
+    <x-slot name="script">
+
+        <script>
+            $(document).on('click', '.deleteBtn', function() {
+                if (!confirm('Bạn có chắc muốn xóa không?')) return;
+                let id = $(this).data('id');
+                console.log(id);
+                $.ajax({
+                    url: "{{ route('roles.destroy', ':id') }}".replace(':id', id),
+                    method: 'DELETE',
+                    headers: {
+                        'x-csrf-token': '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        $('#row' + id).remove(); <
+                        x - message > < /x-message>
+                        //fetchPermissions();
+                        //window.location.href = "{{ route('roles.index') }}";
+                    },
+                    error: function() {
+                        alert("Lỗi, Không thể xóa role.");
+                    }
+                });
+            });
+        </script>
+
+    </x-slot>
+
+</x-app-layout>
+
+<style>
+    #pagination {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    #pagination li,
+    #pagination .page-item {
+        display: inline-block !important;
+        /* hoặc flex-shrink: 0 */
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+    }
+</style>
